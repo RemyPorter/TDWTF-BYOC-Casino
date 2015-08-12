@@ -1,0 +1,8 @@
+Run methods:
+1) run profile.py to generate large numbers of random numbers and collect statistics on the numbers and proper betting strategy
+2) run generate.py to print readable strings of random numbers
+3) treat roulette as a module by importing, creating an instance of Roulette, and calling the random() method. (This returns strings to handle both 0 and 00)
+
+How it works: Probabilities are adjusted so that recently returned numbers are less likely to occur. The probabilities drop by a little over 50% of max each time a number is generated and return to normal over time.  Twice in a row therefore drops the probability to 0% so runs cannot occur.
+
+The secret: This manipulates the probabilities too much, so that if you always bet on the number that has occurred least recently, the odds are actually pushed in your favor and you'll make money on the average bet.  There is nothing obviously malicious about either the code or the betting strategy.
