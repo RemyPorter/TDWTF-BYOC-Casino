@@ -1,0 +1,5 @@
+C:\Users\Niels\Documents\Visual Studio 2013\Projects\LuckyDeuceCasino\LuckyDeuceCasino\bin\Debug\LuckyDeuceCasino.exe
+C:\Users\Niels\Documents\Visual Studio 2013\Projects\LuckyDeuceCasino\LuckyDeuceCasino\bin\Debug\LuckyDeuceCasino.pdb
+C:\Users\Niels\Documents\Visual Studio 2013\Projects\LuckyDeuceCasino\LuckyDeuceCasino\obj\Debug\LuckyDeuceCasino.csprojResolveAssemblyReference.cache
+C:\Users\Niels\Documents\Visual Studio 2013\Projects\LuckyDeuceCasino\LuckyDeuceCasino\obj\Debug\LuckyDeuceCasino.exe
+C:\Users\Niels\Documents\Visual Studio 2013\Projects\LuckyDeuceCasino\LuckyDeuceCasino\obj\Debug\LuckyDeuceCasino.pdb

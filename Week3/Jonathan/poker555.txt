@@ -1,0 +1,91 @@
+Okay, so now I'm working for Bitchy McGunslinger.  Who's also apparently working for Lucky Deuce.  And she wants me to earn *her* some money the dirty way.  Meanwhile I need to screw her over, but not before she gets that gun out of my face.
+
+She can read code well enough to spot that I rigged the roulette wheel - but, apparently, she *isn't* good enough to exploit it by herself, or she wouldn't be so desperate for my "secrets".  From this, I can also deduce that she hasn't found the cheat program on my laptop - good thing I encrypted it and stashed it among all those gigabytes of furry porn, steganographically.  I can pretend that I "lost" it, but I can recreate it as a derivative of the released version if I need to - and without the safeguards.
+
+I reused the same rigged RNG, with a different output filter, for the one-armed bandit assignment.  Bitchy doesn't seem to know it, but I wasn't able to make any "extra" money out of that one - which is why I ended up in such a crap place, rather than an actual hotel with functional plumbing (other than the obligatory urinal-to-cask system).  I should have just stuck to roulette, but it's slow to work your way up on that, if you stay careful enough to not get spotted.
+
+And there lies the kernel of my plan.  My RNG can be perfectly predicted if you get enough of its output.  With perfect prediction you can perform perfect play.  Perfect enough to stand out like a sore thumb if you aren't careful.  All I have to do is *not* tell Bitchy how to be careful.  She looks impatient enough to buy it.
+
+So while I work, I tell her about the one-armed bandit, and explain why that one *isn't* rigged, even though she thinks it is:
+
+Slot machines are fundamentally different from roulette, in that you don't get to choose your bet.  You just put in a coin, pull the lever, and the machine decides whether you win or lose this time.  The Lucky Deuce machines don't even have "hold" and "nudge", only a totaliser that mimics a really bad gambler's betting system.  It's a pure game of chance, and there's no way to rig it for yourself without rigging it for everyone, and even those idiots at the Lucky Deuce would notice if their house edge went negative.
+
+I *can* predict whether my one-armed bandit is going to win or lose.  But that doesn't help me, since I have to place a bet anyway to roll it over to the next setting.  Nor can I stand to one side while some other sucker puts their money into it, because this is an *online* slot machine.
+
+Poker, though - *that's* a game of skill.  You look at your cards and see how good a hand you have.  You look at your opponents for tells, too.  From that, you make an educated guess as to whether you have a better hand than they do - and you place your bets accordingly.  You get to choose whether to check or bet; or whether to call, raise or fold on your opponents' bets.
+
+I made a lot of money at roulette because I *could* choose my bets.  The cheat program had an exact copy of the rigged RNG, so after it had figured out the internal state, it knew exactly what numbers would come up.  All I had to do was bet accordingly.
+
+Likewise, if you happen to know your opponents' cards as well as your own, you can construct an optimal betting strategy.  It doesn't matter that this is straight poker, not Texas Hold 'Em or Omaha where the "community cards" are visible to all.  It doesn't matter that there are five decks in play, making five-of-a-kind possible (indeed, they could be all of the same suit as well as value!) and all cards effectively equally probable.
+
+We are the dealer, and we've got a shaving mirror on the table.
+
+So, again, I copy the same rigged RNG into a fresh source file, mix in some handy code from a Texas Hold 'Em trainer I whipped together ages ago, and craft a brand-new cheat program to go with it.  I explain everything as I go - nothing up my sleeve.  That's the beauty of this plan - it *relies* on everything being out in the open.
+
+There are a total of 260 cards in five decks.  I therefore use two bytes of the SHA256 hash for each of the first five cards (one for each player).  After that, there's only 255 cards left to choose from, so one byte of entropy is enough.  After dealing 25 cards in total, I've used 30 bytes of the hash, leaving two.
+
+As feedback for the next hand's RNG state, I insert the values and suits of the dealt cards as for the roulette numbers - but in fact I "accidentally" insert only the player's cards, not all of them.  This is because poker players who fold get to keep their cards hidden, so we can only guarantee seeing our own cards, which we need in order to cheat.  I *also* insert the two spare bytes at the end of the hash into the MSBs of the state word - explaining that the Lucky Deuce might be getting suspicious of the roulette wheel by now, so I need to make this one a bit "stronger" by feeding back all of the RNG state rather than just part of it.
+
+I don't mention that if they were really getting suspicious of the roulette wheel, a sudden change to a later version of the same RNG might heighten that suspicion a touch and prompt a code audit from someone with a clue.  Especially if that same RNG shows up from a different contractor (Bitchy) than the original author (me).
+
+Of course, Bitchy questions how we can still predict the RNG state if we're feeding in this entirely unpredictable value from the hash.  Looking nervously at that pistol of hers, I point out that there's only 16 bits of unknown entropy that way, and we can figure out what those bits must be by looking at the cards it deals us - all on automatic, as all she has to do is type in the cards that come up.  I also remind her that it'll take ten hands of normal poker play before the opponents' cards are completely known, just like it took 64 spins before my roulette wheel was "sighted in".
+
+...maybe I shouldn't push it with the firearms puns.  Moving on...
+
+To give her something else to do than point a gun at me, I encourage her to start looking up poker betting strategies.  Knowing the cards isn't much good if you can't turn that advantage into a big profit when the cards are in your favour, and minimise your losses when they aren't.  And I want her to do well at cards here - the more conspicuously well, the better.
+
+There is one last caveat I give her before handing over the code:  I don't know whether this will be multiplayer poker, or just against AIs.  If it's AI, I can't predict how good the AI will be.  Probably not very good, if the Lucky Deuce uses its contractors to build it as usual.
+
+But if it's multiplayer (which is perhaps more likely), then she won't be able to count on being the dealer for every hand.  So when she sends in the code, she should make sure to specify that a separate instance of the RNG is used for each dealer - otherwise she won't be able to gather the data required for the cheat to work.  As it is, she'll need to enter and predict only hands where she's the dealer.
+
+I don't insult her intelligence by pointing out that this will skew her win rate as dealer compared to her average.  Winning a lot at poker might just mean you're a good player - but winning a lot *only* as dealer?  That'll smell fishy.  There is, of course, a way to give an equal advantage in all hands, but I'm not going to give her that.  I mean, it's hard to concentrate with a gun to your head.
+
+At least when the Feds come knocking, I can honestly claim she forced me to do it.  And this particular work of skulduggery is going in under *her* account, not mine.  All I have to do is maintain my poker face until then...
+
+...
+
+So much for the backstory.
+
+The essential point in this entry is consistency with my previous entry, at least as far as the "released" code is concerned.  The game is thus statistically fair as far as the specification goes, and since the first version of the RNG passed QA at Lucky Deuce, this version of it should also be fine (at first).
+
+But while I took pains to not stand out statistically in my cheat method previously - to the point of using outside bets instead of obtaining perfect straight bets, which would have paid out much more - I have not done so here.  The cheat program outputs the absolute best information that it can, rather than deliberately watering it down to give some semblance of statistical plausibility as the Roulette cheater did.
+
+I'm hoping that this is enough to trip up my captor, who (I assume) will be able to compare the released code samples but not the cheats.  In particular, she won't recognise the significance of my lucky D20s until it's too late, and the virtual pit boss is breathing down her neck.
+
+It builds and runs in essentially the same way as my Roulette entry:
+
+	g++ -O -Wall -Wextra -DTESTING poker555.cpp sha256.cpp -o poker555
+
+	g++ -O -Wall -Wextra poker555-cheat.cpp sha256.cpp -o poker555-cheat -lreadline
+
+Cards are represented by two-character codes, value then suit, separated by whitespace.  Value is A/K/Q/J/X/9..2, suit is C/H/S/D.  These codes are used to print the individual cards in each hand, and to input the player's hand for the cheat program to chew on.
+
+The cheat program will in fact produce predictions beginning with the 9th hand (possibly after a noticeable delay), as this is where the uncertainty in the RNG state drops below 24 bits - sufficient to be reasonably certain of finding the correct result first time.  After this, it doesn't technically *need* to search any more, but it does so anyway (within the remaining uncertainty) as a safeguard against the possibility of collisions.
+
+Both programs also interpret each hand using poker precedence rules, allowing an at-a-glance comparison of the dealer's hand to each of the players'.  This is the code I did actually lift from a Texas Hold 'Em program, though I had to modify it extensively to cope with multiple decks.  As a result, flushes list the card values in random order, rather than highest first - this is a flaw I didn't have time to fix, but flushes are sufficiently rare that this probably doesn't matter.
+
+To the normal progression, I've added "Five of a Kind" between the standard "Straight Flush" and "Four of a Kind"; it's impossible to achieve with a single deck, but becomes available with more than one, though it's still very rare.  The programs do not, however, declare a winner automatically - this is up to the player running the cheat program, or some other contractor for the actual game.
+
+Also included is a Bash script poker555-stats.sh, which generates 100,000,000 hands and prints statistics of how common each type of hand is.  It'll take a while to run, so I've done it for you:
+
+Royal Flush:         142
+Straight Flush:     1183
+Five of a Kind:     2136
+Four of a Kind:   158257
+Full House:       355751
+Flush:            345396
+Straight:         334005
+Three of a Kind: 4099187
+Two Pair:        6488440
+Pair:           45486485
+High Card:      42729018
+
+Straight poker tends to give lower-value hands than Texas Hold 'Em, since in the latter game you get to pick any five cards from a pool of seven (and in Omaha, you get an even more flexible choice).  Anything above "Three of a Kind" is remarkably rare, with straights, flushes and full houses *combined* accounting for about 1% of hands, thus being about a quarter as common as three-of-a-kind.
+
+...
+
+As an aside, I noticed in the results of the first contest that Edgar was awarded two prizes, which I'm sure was an inadvertent mistake.
+
+And of course, the "Bruce says so" comments (which remain in this entry as a forensic link to the rigged Roulette wheel) are a reference to Bruce Schneier, who - as legend would have it - could probably predict the output of /dev/random in his sleep.  Regardless of legend, he would undoubtedly not approve of my abuse of RNGs.
+
+ - Jonathan Morton
