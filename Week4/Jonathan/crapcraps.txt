@@ -1,0 +1,73 @@
+For once, the Lucky Deuce has come up with a variant game that actually sounds sort-of interesting.  Not that it's likely to make me take up gambling for real - it's a tax on people who are *bad* at maths, after all - but it helps to stave off the boredom to work out how to implement it.
+
+	"I studied at Gygax Polyhedral, if you catch my drift."  -- Tycho
+
+Boiled down to its essence, craps relies on the non-uniform number distribution produced by multiple dice (two being the minimum) and the division of these numbers into four distinct classes:
+
+- the "natural", which is the average (and most common) result.
+- the "points" numbers, which sit either side of the "natural".
+- the "pass" and "don't pass" results.
+- the "push" result, which is usually the highest result (one of the least common).
+
+It is thus possible to make a playable craps game using just five distinct results, which can be obtained from a pair of 3-sided dice (which would be triangular prisms - the possible results would be 2, 3, 4, 5, 6) or four coins (where the results would be 4, 5, 6, 7, 8).
+
+For 2d3, 4 would be the "natural", 3 and 5 would be the "points", only the "natural" would win a "pass" bet (and lose "don't pass"), 2 would win a "don't pass" bet (and lose "pass"), while 6 would lose a "pass" and "push" on "don't pass".  This would however be an extremely simplified game, possibly suitable for young children rather than actual gamblers.
+
+The real challenge is to define the ranges of results that each class covers in such a way that all interesting configurations are covered, *and* a 2d6 combination corresponds to a standard craps game.  It is also necessary to attempt to produce a worthwhile game in each case, and to ensure that a calculable and positive house edge exists in all cases.
+
+For even numbers of even-sided dice, even numbers of odd-sided dice and odd numbers of odd-sided dice, the average (which is identical to the average of the maximum and minimum results) is an integer and thus there is an unambiguously unique "natural".  For odd numbers of even-sided dice, the minimum is always odd and the maximum always even, so the average falls halfway between two integers.  So either there will be two "naturals" or it is necessary to disallow that combination.  The spec however implies that disallowing a large class of configurations is undesirable, so twin naturals will need to be handled.
+
+With large numbers of dice, the highest and lowest results become increasingly rare, making it exceedingly hard to win a "don't pass" bet.  This can be corrected for by matching the number of results that "pass" and "don't pass" bets win on to the number of dice in play.  This is however incompatible with the use of 3-sided dice and coins, but I think it's reasonable to exclude those in general; the d4 (tetrahedral) is the smallest that most people would recognise as true dice.  A 2d4 configuration would thus have only two "points" numbers, but be otherwise similar to standard craps.
+
+Increasing the number of dice also makes "hard way" results rarer, assuming that all dice need to show the same number to qualify.
+
+With many-sided dice in general, more rolls are needed on average to resolve an "on point" round.  On the other hand, this doesn't materially affect the statistics involved once "on point".  Conversely, it is easier to get "on point", rather than "passing", since fewer of the result values fall into the extrema.  I don't think any special compensation needs to be made for this.
+
+Physical dice can, in theory, be made with any number of sides - where a polyhedral form is impractical, a prismatic form can be used instead.  Computer dice are happily free of the practical difficulties accompanying many-sided prismatic dice, so I can set an arbitrarily high side limit - say 250.  Likewise, the number of dice could be limited only arbitrarily, as long as I use efficient algorithms for counting the statistics.
+
+Note that the statistics for a 256d4 game would potentially require 512-bit integers to store, which are not convenient to construct in C++ (without calling on a dedicated MP arithmetic library).  In general the number of dice result combinations is sides^dice, so it is necessary to keep this figure below 2^64.  I could use floating-point to get around this limitation, but I want to print out exact odds ratios after reduction using GCD, as well as decimal percentages.
+
+Hence games up to 4d250, 14d20, 24d6, 27d5 or 31d4 can be constructed.  I think 31 dice in play is quite enough for most people, especially given the caltrap-like properties of d4s.  Happily, this also fits neatly with the design of my existing RNG.
+
+While cheating is not a goal of this round of the contest, I've continued to use my own flawed RNG for this entry, purely for consistency.  Constructing a corresponding cheat program is left as an exercise for the reader.
+
+...
+
+The complete program takes the number of dice and the number of sides on the command line (eg. "./crapcraps 2 6" will produce the standard game).  It first prints its formulation of the basic rules for the chosen variant, and then a load of calculated statistics, before settling down to actually roll dice.
+
+If an invalid configuration is chosen, it will instead print out a summary of which games it *can* handle.
+
+Both phases of the game are modelled, and the program automatically switches back and forth as required.  The statistics output also reflects this, as it includes overall statistics for the "pass" and "don't pass" bets, which can only be calculated accurately with reference to both phases.
+
+Individual dice rolls are listed as individual dice, then the total, then a brief interpretation (ie. "Easy", "Hard" or "Natural" rolls are noted as such).  Rolls which win or lose the "pass" and "don't pass" bets are called out, while rolls which do not do so are not remarked on.  Phase changes are noted specially with an extra line of output, including reminders to change to the next "shooter" when appropriate.
+
+The statistics of the variant games (modelling both phases for accuracy) are interesting, and show that careful selection of betting odds are needed in order to reliably maintain the house edge.  The normal distribution which appears as the number of dice grows appears to favour the "Don't Pass" bet markedly when compared to the triangular distribution of the standard game.
+
+For a comparatively modest 4d20 game, "Don't Pass" wins over 58% of the time, so paying evens for that bet would be a fairly large net loss for the house.  Some games, such as 4d250 and 12d20, more closely approach 60%, and the "ultimate" 31d4 game reaches over 64% (partly because it is a twin-natural configuration, which biases the "on point" phase further; 30d4 is much less biased).
+
+This strong bias might have gone unnoticed if I had modelled only the "come out" phase.
+
+I have not attempted to implement actually placing bets, or calculating what an appropriate payout might be for each bet.
+
+To extend this program to do so, I would recommend adding a Bet class hierarchy, so that Bet objects can have the same lifetime as the bet itself.  This is necessary since several types of bets (notably the "come" bets, which are otherwise similar to the "pass" bets) run independently of the main flow of the game.
+
+I suspect that many of the more esoteric bets would become very rare wins with most of the variants.  To illustrate this, look at the "place" and "hard ways" odds for 3d9:
+
+Multi-roll bets:
+Place:
+	   6 |   24:	61:10 (14.0845%)
+	   7 |   23:	61:15 (19.7368%)
+	   8 |   22:	61:21 (25.6098%)
+	   9 |   21:	61:28 (31.4607%)
+	  10 |   20:	61:36 (37.1134%)
+	  11 |   19:	61:45 (42.4528%)
+	  12 |   18:	61:52 (46.0177%)
+	  13 |   17:	61:57 (48.3051%)
+	  14 |   16:	61:60 (49.5868%)
+Lay (any): 648:61 (8.6037%)
+Hard Ways:
+	   6 |   24:	70:1 (1.4085%)
+	   9 |   21:	88:1 (1.1236%)
+	  12 |   18:	112:1 (0.8850%)
+
+While a player would be able to choose his risk level very nicely with a "place" bet, all of the "hard way" odds are very long indeed.
