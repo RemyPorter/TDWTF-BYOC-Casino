@@ -1,0 +1,27 @@
+DESCRIPTION
+This is an implementation of LuckyDeuce web casino. As experience tells us, one programmer rarely can do much alone, and for some real damage, teamwork is required. Approximately half the code was written by your usual self-proclaimed expert, and the rest was finished (as is usually the case) by the casino owner's nephew.
+
+In order to make it as configurable as possible, all casino games are represented as finite automata with random choice and managed by GameFactory. Automata are defined via csv file (UTF-32 for i18n): each game can be in a certain state ("" for starting state) and in each state several Actions are possible by the player. After the player has selected an Action, Outcome is randomly selected, which contains amount of money player won/lost and the next state game should be in. In this way, all required games along with extra requirements can be easily implemented (along with Paula's requirement - she'll most likely get caught trying to upload enormous file to the server).
+
+Comps awarding is weighted according to expected loss of Action - riskier actions are more rewarding. Each game round (Action taken), 1 comp is split among possible actions, and weighted according to expected losses. If an Action has 0 expected loss, then it is removed from calculation and no comps are awarder (passing or similar actions).
+
+The casino keeps track of player history in order to catch cheaters in the following manner: each player keeps for each game a list of Actions taken, along with random seed. History is replayed by seeding rng and replaying the same actions. RNG also keeps the number of iterations since the seed, in order to make changing of games possible and keeping history valid. To go from game A to B first time, RNG is seeded, and when coming back to A, RNG is seeded with seed for A and iterated so the next random number is new. After a specific number of rounds, anti-cheat measures kick in - game is randomly played 1000000 times with all Acions equaly likely. If the player amount deviates too much (3 * stDev), player is marked cheater and kicked out.
+
+Access control is done via random MD5 that changes with every request, but has safeguards in case user hits F5.
+
+The casino also features captcha but simplified to make user access easier, and is customized towards better user experience (different screens for male and female users).
+
+CHEAT
+There's a bug when logging in - two users will be created, one will go to user list, and other to sessions. User A logs in and selects a game (this will init the RNG again) and plays a couple of rounds. While user is logged in, user A logs in again. By refreshing capctha page, images are randomized using the same seed as first login. Images are randomized using modulo 2,3,4... so the number can be calculated using chinese remainder theorem (currently it takes Integer.MAX_INT size so provided images should be enough, if larger number add more cats).
+
+Cleaning the comps is now one player loosing and another winning. There's send money function included with a bug - in User.equals method, it will copy the profile. So player A wins until he's kicked out. Player B sends some money to A and gets CHEATER tag, and now player B can win indefinitely, as the check only triggers non-cheating players (app expects they will not pass login).
+
+OTHER BUGS
+- RNG is inited to current time, if algorithm is known this is easy to break with several played rounds
+- user registry searches first via username and then via MD5 in sessions. Altough length is checked there is also trim() somewhere so url encoded "username       " will result in login
+- game of poker with one deck has many combinations, and each user gets his own copies of Action, Outcome etc.
+- exception screen is overflow hidden
+- lots of other WTFs and probably some of my own
+
+COMMENTS
+Unfortunatelly due to time constraints, not all of functionality has been thoroughly tested, and some additional functionallity (javascript engine support for additional automata customization) were not implemented.

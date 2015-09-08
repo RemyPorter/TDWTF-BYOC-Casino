@@ -1,0 +1,50 @@
+
+
+body {
+    background-image: url("images.jpg");
+    background-size: 100% auto;
+}
+
+@-webkit-keyframes happy {
+    0% {color: red;} 50% {color: white;} 100% {color: blue;}
+}
+
+.male {
+    background-color: aqua;
+}
+
+.female {
+    background-color: pink;
+}
+
+happy {
+    -webkit-animation-name: happy;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: cubic-bezier(1.0, 0, 0, 1.0);
+    -webkit-animation-duration: 1s;
+}
+
+main {
+    background-color: aqua;
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 10px 10px 10px;
+    left: 50px;
+    right: 50px;
+    top: 100px;
+    height: 600px;
+    opacity: 0.8;
+    border: 5px solid black;
+}
+
+error {
+    background-color: red;
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30em;
+    height: 3em;
+    line-height: 1em;
+    overflow: hidden;
+}
